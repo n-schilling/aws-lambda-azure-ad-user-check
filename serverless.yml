@@ -1,0 +1,31 @@
+service: aws-lambda-azure-ad-user-check
+
+frameworkVersion: '3'
+
+custom:
+  AzureAuthClientId: "your azure client id"
+  AzureAuthClientSecret: "your azure client secret"
+  AzureTenantId: "your azure tenant id"
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: eu-central-1
+  logRetentionInDays: 60
+  tracing:
+    lambda: true
+    apiGateway: true
+  deploymentBucket:
+    blockPublicAccess: true
+    serverSideEncryption: AES256
+
+functions:
+  user-check:
+    handler: handler.main
+    description: 'Function to check a user in the configured Azure AD'
+    memorySize: 128
+    timeout: 30
+    environment:
+      AZURE_AUTH_CLIENT_ID: ${self:custom.AzureAuthClientId}
+      AZURE_AUTH_CLIENT_SECRET: ${self:custom.AzureAuthClientSecret}
+      AZURE_TENANT_ID: ${self:custom.AzureTenantId}
