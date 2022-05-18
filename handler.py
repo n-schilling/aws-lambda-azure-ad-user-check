@@ -94,11 +94,15 @@ def main(event, context):
         logger.error("Please set MICROSOFT_API_CREDENTIALS as env variables")
         sys.exit(1)
     microsoft_graph_api_token = get_api_token(azure_auth_client_id, azure_auth_client_secret, azure_tenant_id)
-    user_data = get_azure_ad_user_attributes_by_a_give_attribute("mail", user_to_search, ['id'], microsoft_graph_api_token)
-    if len(user_data) == 0:
-        logger.info(f"The AzureAD DOES NOT contain a user with the email {user_to_search}")
+    user_data = get_azure_ad_user_attributes_by_a_give_attribute("mail", user_to_search, ['id', 'accountEnabled'], microsoft_graph_api_token)
+    user_count = 0
+    for user in user_data:
+        if user['accountEnabled']:
+            user_count += 1
+    if user_count == 0:
+        logger.info(f"The AzureAD DOES NOT contain an active user with the email {user_to_search}")
     else:
-        logger.info(f"The AzureAD contains {len(user_data)} user with the email {user_to_search}")
+        logger.info(f"The AzureAD contains {len(user_data)} active user with the email {user_to_search}")
 
 
 if __name__ == "__main__":
